@@ -3,7 +3,7 @@ aebrahi7@asu.edu
 https://www.alialtaraif.tech
 
 
-# Task Management App – Quick Start
+# Task Management App – How to use
 
 ## 1. Database Setup
 You can install PostgreSQL locally or run it via Docker. For Docker, run:
@@ -35,3 +35,8 @@ cd frontend
 npm install
 npm run dev
 ```
+
+# 6. Running Migrations
+```bash
+cd backend
+npm run migration:run
