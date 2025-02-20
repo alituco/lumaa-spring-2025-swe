@@ -37,6 +37,15 @@ npm run dev
 ```
 
 # 6. Running Migrations
-```bash
-cd backend
-npm run migration:run
+
+  a. Generate the migration:
+  ```bash
+  cd backend
+  npm run migration:generate -- ./src/migrations/InitialMigration
+  ```
+
+  b. Run migrations:
+  ```bash
+  cd backend
+  npm run migration:run
+  ```
