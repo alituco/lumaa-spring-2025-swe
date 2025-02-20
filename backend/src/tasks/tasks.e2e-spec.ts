@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../app.module';
 
-describe('AppController (e2e)', () => {
+describe('TasksController (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -15,11 +15,11 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('GET / (should return 404 or some default)', () => {
+  it('/tasks (GET) should return 401 without auth token', () => {
     return request(app.getHttpServer())
-      .get('/')
-      .expect(404);
-  });
+      .get('/tasks')
+      .expect(401);
+  });  
 
   afterAll(async () => {
     await app.close();
