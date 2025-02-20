@@ -3,6 +3,13 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Box
+} from '@mui/material';
 
 export default function Header() {
   const router = useRouter();
@@ -17,20 +24,35 @@ export default function Header() {
   };
 
   return (
-    <header style={{ background: '#eee', padding: '1rem', marginBottom: '1rem' }}>
-      <nav>
-        <Link href="/">Home</Link> |{' '}
-        {token ? (
-          <>
-            <Link href="/tasks">Tasks</Link> |{' '}
-            <button onClick={handleLogout}>Logout</button>
-          </>
-        ) : (
-          <>
-            <Link href="/login">Login</Link> | <Link href="/register">Register</Link>
-          </>
-        )}
-      </nav>
-    </header>
+    <AppBar position="static">
+      <Toolbar>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+            MyApp
+          </Link>
+        </Typography>
+        <Box>
+          {token ? (
+            <>
+              <Button color="inherit" component={Link} href="/tasks">
+                Tasks
+              </Button>
+              <Button color="inherit" onClick={handleLogout}>
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button color="inherit" component={Link} href="/login">
+                Login
+              </Button>
+              <Button color="inherit" component={Link} href="/register">
+                Register
+              </Button>
+            </>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 }

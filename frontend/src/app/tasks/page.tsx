@@ -3,6 +3,22 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getTasks, createTask, updateTask, deleteTask } from '@/services/api';
+import {
+  Container,
+  Typography,
+  Box,
+  TextField,
+  Button,
+  List,
+  ListItem,
+  Card,
+  CardContent,
+  CardActions,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
+} from '@mui/material';
 
 interface Task {
   id: number;
@@ -18,6 +34,10 @@ export default function TasksPage() {
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
   const [token, setToken] = useState<string | null>(null);
+
+  // For editing a task
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editTask, setEditTask] = useState<Task | null>(null);
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -44,6 +64,9 @@ export default function TasksPage() {
     fetchTasks();
   }, [token]);
 
+  // ------------------
+  // CREATE
+  // ------------------
   const handleCreateTask = async (e: FormEvent) => {
     e.preventDefault();
     if (!token) return;
@@ -61,10 +84,15 @@ export default function TasksPage() {
     }
   };
 
+  // ------------------
+  // TOGGLE COMPLETE
+  // ------------------
   const handleToggleComplete = async (task: Task) => {
     if (!token) return;
     try {
-      const updated = await updateTask(token, task.id, { isComplete: !task.isComplete });
+      const updated = await updateTask(token, task.id, {
+        isComplete: !task.isComplete,
+      });
       if (updated.id) {
         setTasks((prev) => prev.map((t) => (t.id === task.id ? updated : t)));
       } else {
@@ -75,6 +103,9 @@ export default function TasksPage() {
     }
   };
 
+  // ------------------
+  // DELETE
+  // ------------------
   const handleDelete = async (id: number) => {
     if (!token) return;
     try {
@@ -85,50 +116,150 @@ export default function TasksPage() {
     }
   };
 
+  // ------------------
+  // EDIT DIALOG
+  // ------------------
+  const handleOpenEditDialog = (task: Task) => {
+    setEditTask(task);
+    setEditDialogOpen(true);
+  };
+
+  const handleCloseEditDialog = () => {
+    setEditDialogOpen(false);
+    setEditTask(null);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!token || !editTask) return;
+    try {
+      const updated = await updateTask(token, editTask.id, {
+        title: editTask.title,
+        description: editTask.description,
+        isComplete: editTask.isComplete,
+      });
+      if (updated.id) {
+        setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+      } else {
+        setError(updated.message || 'Failed to update task');
+      }
+    } catch (err) {
+      setError('An error occurred while updating task.');
+    } finally {
+      handleCloseEditDialog();
+    }
+  };
+
+  // If token is still null, we show a loading message (or redirect)
   if (token === null) {
     return <p>Loading...</p>;
   }
 
   return (
-    <div>
-      <h1>Your Tasks</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      
-      <form onSubmit={handleCreateTask}>
-        <div>
-          <label>
-            Title:
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            Description:
-            <input
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </label>
-        </div>
-        <button type="submit">Create Task</button>
-      </form>
+    <Container maxWidth="sm" sx={{ py: 4 }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Your Tasks
+      </Typography>
 
-      <ul>
+      {error && (
+        <Typography color="error" variant="body1" gutterBottom>
+          {error}
+        </Typography>
+      )}
+
+      {/* Create Task Form */}
+      <Box component="form" onSubmit={handleCreateTask} sx={{ mb: 3 }}>
+        <TextField
+          label="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          fullWidth
+          margin="normal"
+        />
+        <Button type="submit" variant="contained" sx={{ mt: 1 }}>
+          Create Task
+        </Button>
+      </Box>
+
+      {/* Task List */}
+      <List>
         {tasks.map((task) => (
-          <li key={task.id} style={{ marginBottom: '1rem' }}>
-            <strong>{task.title}</strong> {task.isComplete && '(Complete)'}
-            <p>{task.description}</p>
-            <button onClick={() => handleToggleComplete(task)}>
-              {task.isComplete ? 'Mark Incomplete' : 'Mark Complete'}
-            </button>
-            <button onClick={() => handleDelete(task.id)}>Delete</button>
-          </li>
+          <ListItem key={task.id} disableGutters>
+            <Card sx={{ width: '100%', mb: 2 }}>
+              <CardContent>
+                <Typography variant="h6">
+                  {task.title} {task.isComplete && '(Complete)'}
+                </Typography>
+                {task.description && (
+                  <Typography variant="body2" color="text.secondary">
+                    {task.description}
+                  </Typography>
+                )}
+              </CardContent>
+              <CardActions>
+                <Button
+                  variant="outlined"
+                  color={task.isComplete ? 'warning' : 'success'}
+                  onClick={() => handleToggleComplete(task)}
+                >
+                  {task.isComplete ? 'Mark Incomplete' : 'Mark Complete'}
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => handleOpenEditDialog(task)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => handleDelete(task.id)}
+                >
+                  Delete
+                </Button>
+              </CardActions>
+            </Card>
+          </ListItem>
         ))}
-      </ul>
-    </div>
+      </List>
+
+      {/* Edit Task Dialog */}
+      <Dialog open={editDialogOpen} onClose={handleCloseEditDialog} fullWidth>
+        <DialogTitle>Edit Task</DialogTitle>
+        <DialogContent>
+          {editTask && (
+            <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <TextField
+                label="Title"
+                value={editTask.title}
+                onChange={(e) =>
+                  setEditTask({ ...editTask, title: e.target.value })
+                }
+              />
+              <TextField
+                label="Description"
+                value={editTask.description || ''}
+                onChange={(e) =>
+                  setEditTask({ ...editTask, description: e.target.value })
+                }
+              />
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseEditDialog}>Cancel</Button>
+          <Button onClick={handleSaveEdit} variant="contained">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
   );
 }

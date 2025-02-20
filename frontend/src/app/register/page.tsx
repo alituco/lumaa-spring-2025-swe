@@ -3,6 +3,13 @@
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { registerUser } from '@/services/api';
+import {
+  Container,
+  Typography,
+  Box,
+  TextField,
+  Button
+} from '@mui/material';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -26,34 +33,37 @@ export default function RegisterPage() {
   };
 
   return (
-    <div>
-      <h1>Register</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>
-            Username:
-            <input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            Password:
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </label>
-        </div>
-        <button type="submit">Register</button>
-      </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-    </div>
+    <Container maxWidth="xs" sx={{ py: 4 }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Register
+      </Typography>
+      <Box component="form" onSubmit={handleSubmit}>
+        <TextField
+          label="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          fullWidth
+          margin="normal"
+        />
+        <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+          Register
+        </Button>
+      </Box>
+      {error && (
+        <Typography color="error" variant="body1" sx={{ mt: 2 }}>
+          {error}
+        </Typography>
+      )}
+    </Container>
   );
 }
-

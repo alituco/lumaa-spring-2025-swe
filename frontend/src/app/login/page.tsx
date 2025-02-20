@@ -4,6 +4,13 @@ import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { loginUser } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
+import {
+  Container,
+  Typography,
+  Box,
+  TextField,
+  Button
+} from '@mui/material';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,7 +26,7 @@ export default function LoginPage() {
       const data = await loginUser(username, password);
       if (data.access_token) {
         localStorage.setItem('token', data.access_token);
-        setToken(data.access_token); 
+        setToken(data.access_token);
         router.push('/tasks');
       } else {
         setError(data.message || 'Login failed');
@@ -30,33 +37,37 @@ export default function LoginPage() {
   };
 
   return (
-    <div>
-      <h1>Login</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>
-            Username:
-            <input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            Password:
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </label>
-        </div>
-        <button type="submit">Login</button>
-      </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-    </div>
+    <Container maxWidth="xs" sx={{ py: 4 }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Login
+      </Typography>
+      <Box component="form" onSubmit={handleSubmit}>
+        <TextField
+          label="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          fullWidth
+          margin="normal"
+        />
+        <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+          Login
+        </Button>
+      </Box>
+      {error && (
+        <Typography color="error" variant="body1" sx={{ mt: 2 }}>
+          {error}
+        </Typography>
+      )}
+    </Container>
   );
 }
