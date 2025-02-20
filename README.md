@@ -49,3 +49,22 @@ npm run dev
   cd backend
   npm run migration:run
   ```
+
+
+# 7. Testing
+
+  a. Unit tests:
+  ```bash
+  npm run test
+  ```
+
+  b. E2E tests:
+  ```bash
+  npm run test:e2e
+  ```
+
+
+# 8. Salary Expectations:
+  $20/hr
+  But getting invloved and working directly on the project is definitely going to be what'll drive me :)
+  
